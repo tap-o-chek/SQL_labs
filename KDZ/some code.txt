@@ -1,0 +1,60 @@
+------ учёт проведённого лечения (ведение истории болезни); 
+
+select CardID, (select FirstName 
+				from Patient 
+				where IllnessHistory.PatientID = Patient.PatientID) as [Name],
+				(select SecondName 
+				from Patient 
+				where IllnessHistory.PatientID = Patient.PatientID) as Surname,
+				(select IllnessName 
+				from Illness 
+				where Illness.IllnessID = IllnessHistory.IllnessID) as IllnessName,
+				(select SecondName 
+				from Workers 
+				where IllnessHistory.WorkerID = Workers.WorkerID) as Doctor,
+				RoomID,
+				IllnessStatus,
+				DateIn,
+				DateOut
+from IllnessHistory
+
+
+------ учет лечащих врачей с привязкой к пациенту; 
+
+select WorkerID, FirstName, SecondName, 
+		(select SpecialityName 
+		from Specification 
+		where Workers.WorkerID = Specification.SpecialityID) as Speciality, 
+		EducationDegree,
+		(select (select FirstName 
+				from Patient 
+				where IllnessHistory.PatientID = Patient.PatientID) 
+		 from IllnessHistory 
+		 where Workers.WorkerID = IllnessHistory.WorkerID) as PatientName
+from Workers
+
+------ выдача счетов на оплату
+
+select CardID, (select FirstName 
+				from Patient 
+				where IllnessHistory.PatientID = Patient.PatientID) as [Name],
+				(select SecondName 
+				 from Patient 
+				 where IllnessHistory.PatientID = Patient.PatientID) as Surname,
+				(select IllnessName 
+				 from Illness 
+				 where Illness.IllnessID = IllnessHistory.IllnessID) as IllnessName,
+				(select SecondName 
+				 from Workers 
+				 where IllnessHistory.WorkerID = Workers.WorkerID) as Doctor,
+				(select (select ServiceName 
+						 from [Services] 
+						 where [Services].ServiceID = ServiceIllness.ServiceID) 
+				 from ServiceIllness 
+				 where ServiceIllness.CardID = IllnessHistory.CardID) as ServiceName,
+				(select (select Price 
+						 from [Services] 
+						 where [Services].ServiceID = ServiceIllness.ServiceID) 
+				 from ServiceIllness 
+				 where ServiceIllness.CardID = IllnessHistory.CardID) as Price
+from IllnessHistory
